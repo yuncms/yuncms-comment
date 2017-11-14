@@ -1,8 +1,10 @@
 <?php
+
 use yii\helpers\Url;
 use yii\helpers\Html;
 use yii\helpers\HtmlPurifier;
 
+/** @var \yuncms\comment\models\Comment $model */
 ?>
 <div class="media-left">
     <a href="<?= Url::to(['/user/space/view', 'id' => $model->user_id]) ?>" target="_blank">
@@ -25,8 +27,8 @@ use yii\helpers\HtmlPurifier;
         <span class="text-muted"><?= Yii::$app->formatter->asRelativeTime($model->created_at); ?></span>
         <?php if (!Yii::$app->user->isGuest && $model->user_id != Yii::$app->user->id): ?>
             <a href="#" class="ml-10 comment-reply"
-               data-source_id="<?= $model->source_id ?>" data-to_user_id="<?= $model->user_id ?>"
-               data-source_type="<?= $model->source_type ?>"
+               data-model_id="<?= $model->model_id ?>" data-to_user_id="<?= $model->user_id ?>"
+               data-model_class="<?= $model->model_class ?>"
                data-message="回复 <?= Html::encode($model->user->nickname) ?>"><i class="fa fa-reply"></i> 回复</a>
         <?php endif; ?>
     </div>

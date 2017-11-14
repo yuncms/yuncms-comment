@@ -21,13 +21,16 @@ class Comment extends Widget
     /**
      * @var string 内容类型
      */
-    public $source_type;
+    public $model_class;
 
     /**
      * @var int 关系ID
      */
-    public $source_id;
+    public $model_id;
 
+    /**
+     * @var bool 隐藏取消
+     */
     public $hide_cancel = false;
 
     /** @var bool */
@@ -38,11 +41,11 @@ class Comment extends Widget
     {
         parent::init();
         $this->registerTranslations();
-        if (empty ($this->source_type)) {
-            throw new InvalidConfigException ('The "source_type" property must be set.');
+        if (empty ($this->model_class)) {
+            throw new InvalidConfigException ('The "model_class" property must be set.');
         }
-        if (empty ($this->source_id)) {
-            throw new InvalidConfigException ('The "source_id" property must be set.');
+        if (empty ($this->model_id)) {
+            throw new InvalidConfigException ('The "model_id" property must be set.');
         }
         Url::remember('', 'actions-redirect');
     }
@@ -81,13 +84,13 @@ class Comment extends Widget
     public function run()
     {
         $model = new CommentForm([
-            'source_type' => $this->source_type,
-            'source_id' => $this->source_id
+            'model_class' => $this->model_class,
+            'model_id' => $this->model_id
         ]);
         return $this->render('comment', [
             'model' => $model,
-            'source_type' => $this->source_type,
-            'source_id' => $this->source_id,
+            'model_class' => $this->model_class,
+            'model_id' => $this->model_id,
             'hide_cancel' => $this->hide_cancel,
         ]);
     }

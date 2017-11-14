@@ -1,14 +1,13 @@
 <?php
 use yii\helpers\Url;
-use yii\helpers\Html;
 use yuncms\comment\frontend\widgets\Comment;
 use yuncms\comment\frontend\widgets\assets\CommentAsset;
 
 CommentAsset::register($this);
 /** @var \yii\web\View $this */
 ?>
-<div class="collapse widget-comments mb-20" id="comments-<?= $source_type ?>-<?= $source_id ?>"
-     data-source_type="<?= $source_type ?>" data-source_id="<?= $source_id ?>">
+<div class="collapse widget-comments mb-20" id="comments-<?= $model_class ?>-<?= $model_id ?>"
+     data-source_type="<?= $model_class ?>" data-model_id="<?= $model_id ?>">
     <div class="widget-comment-list">
     </div>
     <?php if (!Yii::$app->user->isGuest): ?>
@@ -17,18 +16,18 @@ CommentAsset::register($this);
                 <div class="form-group">
                     <textarea name="content" placeholder="<?= Comment::t('comment', 'Write your comment') ?>"
                               class="form-control"
-                              id="comment-<?= $source_type ?>-content-<?= $source_id ?>"></textarea>
+                              id="comment-<?= $model_class ?>-content-<?= $model_id ?>"></textarea>
                 </div>
             </form>
             <div class="col-md-12 text-right">
                 <?php if ($hide_cancel): ?>
                     <a href="#" class="text-muted collapse-cancel"
-                       data-collapse_id="comments-<?= $source_type ?>-<?= $source_id ?>"><?= Comment::t('comment', 'Clean') ?></a>
+                       data-collapse_id="comments-<?= $model_class ?>-<?= $model_id ?>"><?= Comment::t('comment', 'Clean') ?></a>
                 <?php endif; ?>
                 <button type="submit" class="btn btn-primary btn-sm ml-10 comment-btn"
-                        id="<?= $source_type ?>-comment-6-btn"
-                        data-source_id="<?= $source_id ?>"
-                        data-source_type="<?= $source_type ?>"
+                        id="<?= $model_class ?>-comment-6-btn"
+                        data-model_id="<?= $model_id ?>"
+                        data-model_class="<?= $model_class ?>"
                         data-to_user_id="0"
                 ><?= Comment::t('comment', 'Submit Comment') ?></button>
             </div>

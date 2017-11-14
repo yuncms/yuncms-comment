@@ -19,12 +19,12 @@ class CommentForm extends Model
     /**
      * @var string
      */
-    public $source_type;
+    public $model_class;
 
     /**
      * @var int
      */
-    public $source_id;
+    public $model_id;
 
     /**
      * @var string
@@ -51,8 +51,8 @@ class CommentForm extends Model
     {
         if ($this->validate()) {
             $model = new Comment([
-                'source_type' => $this->source_type,
-                'source_id' => $this->source_id,
+                'model_class' => $this->model_class,
+                'model_id' => $this->model_id,
                 'user_id' => Yii::$app->user->id,
                 'content' => $this->content,
             ]);

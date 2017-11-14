@@ -75,8 +75,8 @@ class DefaultController extends Controller
         }
 
         $query = Comment::find()->where([
-            'source_id' => $sourceId,
-            'source_type' => get_class($source),
+            'model_id' => $sourceId,
+            'model' => get_class($source),
         ])->with('user');
 
         $dataProvider = new ActiveDataProvider([
@@ -93,36 +93,36 @@ class DefaultController extends Controller
      */
     public function actionStore()
     {
-        $sourceType = Yii::$app->request->post('sourceType');
-        $sourceId = Yii::$app->request->post('sourceId');
+        $model_class = Yii::$app->request->post('model_class');
+        $modelId = Yii::$app->request->post('model_id');
         /** @var null|\yii\db\ActiveRecord $source */
         $source = null;
-        if ($sourceType == 'question' && Yii::$app->hasModule('question')) {
-            $source = \yuncms\question\models\Question::findOne($sourceId);
+        if ($model_class == 'question' && Yii::$app->hasModule('question')) {
+            $source = \yuncms\question\models\Question::findOne($modelId);
             $notifySubject = $source->title;
             $notifyType = 'comment_question';
             $notify_refer_type = 'question';
             $notify_refer_id = 0;
-        } else if ($sourceType === 'answer' && Yii::$app->hasModule('question')) {
-            $source = \yuncms\question\models\Answer::findOne($sourceId);
+        } else if ($model_class === 'answer' && Yii::$app->hasModule('question')) {
+            $source = \yuncms\question\models\Answer::findOne($modelId);
             $notifySubject = $source->question->title;
             $notifyType = 'comment_answer';
             $notify_refer_type = 'answer';
             $notify_refer_id = $source->question_id;
-        } else if ($sourceType == 'article' && Yii::$app->hasModule('article')) {
-            $source = \yuncms\article\models\Article::findOne($sourceId);
+        } else if ($model_class == 'article' && Yii::$app->hasModule('article')) {
+            $source = \yuncms\article\models\Article::findOne($modelId);
             $notifySubject = $source->title;
             $notifyType = 'comment_article';
             $notify_refer_type = 'article';
             $notify_refer_id = $source->id;
-        } else if ($sourceType == 'live' && Yii::$app->hasModule('live')) {
-            $source = \yuncms\live\models\Stream::findOne($sourceId);
+        } else if ($model_class == 'live' && Yii::$app->hasModule('live')) {
+            $source = \yuncms\live\models\Stream::findOne($modelId);
             $notifySubject = $source->title;
             $notifyType = 'comment_live';
             $notify_refer_type = 'live';
             $notify_refer_id = $source->id;
-        } else if ($sourceType == 'code' && Yii::$app->hasModule('code')) {
-            $source = \yuncms\code\models\Code::findOne($sourceId);
+        } else if ($model_class == 'code' && Yii::$app->hasModule('code')) {
+            $source = \yuncms\code\models\Code::findOne($modelId);
             $notifySubject = $source->title;
             $notifyType = 'comment_code';
             $notify_refer_type = 'code';
@@ -135,8 +135,8 @@ class DefaultController extends Controller
 
         $data = [
             'user_id' => Yii::$app->user->id,
-            'source_id' => $sourceId,
-            'source_type' => get_class($source),
+            'model_id' => $source->id,
+            'model_class' => get_class($source),
             'content' => Yii::$app->request->post('content'),
             'to_user_id' => Yii::$app->request->post('to_user_id'),
         ];
@@ -145,11 +145,11 @@ class DefaultController extends Controller
             /*问题、回答、文章评论数+1*/
             $source->updateCounters(['comments' => 1]);
             if ($model->to_user_id > 0) {
-                notify(Yii::$app->user->id, $model->to_user_id, 'reply_comment', $notifySubject, $sourceId, $model->content, $notify_refer_type, $notify_refer_id);
+                notify(Yii::$app->user->id, $model->to_user_id, 'reply_comment', $notifySubject, $source->id, $model->content, $notify_refer_type, $notify_refer_id);
             } else {
-                notify(Yii::$app->user->id, $source->user_id, $notifyType, $notifySubject, $sourceId, $model->content, $notify_refer_type, $notify_refer_id);
+                notify(Yii::$app->user->id, $source->user_id, $notifyType, $notifySubject, $source->id, $model->content, $notify_refer_type, $notify_refer_id);
             }
-            return $this->renderPartial('detail', ['model' => $model, 'source_type' => $sourceType, 'source_id' => $sourceId]);
+            return $this->renderPartial('detail', ['model' => $model, 'model_class' => $model_class, 'model_id' => $source->id]);
         } else {
             throw new ForbiddenHttpException($model->getFirstError());
         }
