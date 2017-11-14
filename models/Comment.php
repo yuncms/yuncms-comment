@@ -24,8 +24,8 @@ use yuncms\user\models\User;
  *
  * @property integer $id 评论ID
  * @property integer $user_id 用户ID
- * @property string $source_type
- * @property integer $source_id
+ * @property string $model_class 模型名称
+ * @property integer $model_id 模型ID
  * @property string $content 评论内容
  * @property integer|null $to_user_id @某人
  * @property integer $parent 父评论ID
@@ -90,8 +90,8 @@ class Comment extends ActiveRecord implements ScanInterface
     {
         $scenarios = parent::scenarios();
         return ArrayHelper::merge($scenarios, [
-            static::SCENARIO_CREATE => ['source_id','content'],
-            static::SCENARIO_UPDATE => ['source_id','content'],
+            static::SCENARIO_CREATE => ['model_class', 'model_id', 'content'],
+            static::SCENARIO_UPDATE => ['model_class', 'model_id', 'content'],
         ]);
     }
 
@@ -101,9 +101,12 @@ class Comment extends ActiveRecord implements ScanInterface
     public function rules()
     {
         return [
-            [['source_id', 'content'], 'required'],
+
+            [['model_class', 'model_id', 'content'], 'required'],
+            [['model_class'], 'string', 'max' => 100],
             [['content'], 'filter', 'filter' => 'trim'],
             ['content', 'validateContent'],
+
             ['status', 'default', 'value' => self::STATUS_DRAFT],
             ['status', 'in', 'range' => [
                 self::STATUS_DRAFT, self::STATUS_REVIEW, self::STATUS_REJECTED, self::STATUS_PUBLISHED,
@@ -143,8 +146,8 @@ class Comment extends ActiveRecord implements ScanInterface
         return [
             'content' => Yii::t('comment', 'Content'),
             'parent' => Yii::t('comment', 'Parent Content'),
-            'source_type' => Yii::t('comment', 'source Type'),
-            'source_id' => Yii::t('comment', 'source Id'),
+            'model_class' => Yii::t('comment', 'Model Class'),
+            'model_id' => Yii::t('comment', 'Model Id'),
             'status' => Yii::t('comment', 'Status'),
             'created_at' => Yii::t('comment', 'Created At'),
         ];
@@ -189,7 +192,7 @@ class Comment extends ActiveRecord implements ScanInterface
      * 是否草稿状态
      * @return bool
      */
-    public function isDraft()
+    public function getIsDraft()
     {
         return $this->status == static::STATUS_DRAFT;
     }
@@ -198,7 +201,7 @@ class Comment extends ActiveRecord implements ScanInterface
      * 是否发布状态
      * @return bool
      */
-    public function isPublished()
+    public function getIsPublished()
     {
         return $this->status == static::STATUS_PUBLISHED;
     }
@@ -210,7 +213,7 @@ class Comment extends ActiveRecord implements ScanInterface
     public function setPublished()
     {
         $this->trigger(self::BEFORE_PUBLISHED);
-        $rows = $this->updateAttributes(['status' => static::STATUS_PUBLISHED, 'published_at' => time()]);
+        $rows = $this->updateAttributes(['status' => static::STATUS_PUBLISHED]);
         $this->trigger(self::AFTER_PUBLISHED);
         return $rows;
     }
@@ -223,7 +226,7 @@ class Comment extends ActiveRecord implements ScanInterface
     public function setRejected($failedReason)
     {
         $this->trigger(self::BEFORE_REJECTED);
-        $rows = $this->updateAttributes(['status' => static::STATUS_REJECTED, 'failed_reason' => $failedReason]);
+        $rows = $this->updateAttributes(['status' => static::STATUS_REJECTED]);
         $this->trigger(self::AFTER_REJECTED);
         return $rows;
     }

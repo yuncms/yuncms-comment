@@ -28,9 +28,9 @@ use xutl\inspinia\ActiveForm;
         ],
     ]) ?>
 
-    <?= $form->field($model, 'source_id', [
+    <?= $form->field($model, 'model_id', [
         'inputOptions' => [
-            'placeholder' => $model->getAttributeLabel('source_id'),
+            'placeholder' => $model->getAttributeLabel('model_id'),
         ],
     ]) ?>
 
@@ -55,8 +55,8 @@ use xutl\inspinia\ActiveForm;
     <?php // echo $form->field($model, 'updated_at') ?>
 
     <div class="form-group">
-        <?= Html::submitButton(Yii::t('app', 'Search'), ['class' => 'btn btn-primary']) ?>
-        <?= Html::resetButton(Yii::t('app', 'Reset'), ['class' => 'btn btn-default']) ?>
+        <?= Html::submitButton(Yii::t('comment', 'Search'), ['class' => 'btn btn-primary']) ?>
+        <?= Html::resetButton(Yii::t('comment', 'Reset'), ['class' => 'btn btn-default']) ?>
     </div>
 
     <?php ActiveForm::end(); ?>

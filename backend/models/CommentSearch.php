@@ -1,8 +1,7 @@
 <?php
 
-namespace yuncms\comment\models;
+namespace yuncms\comment\backend\models;
 
-use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use yuncms\comment\models\Comment;
@@ -18,8 +17,8 @@ class CommentSearch extends Comment
     public function rules()
     {
         return [
-            [['id', 'user_id', 'source_id', 'parent', 'status', 'created_at'], 'integer'],
-            [['source_type', 'content'], 'safe'],
+            [['id', 'user_id', 'model_id', 'parent', 'status', 'created_at'], 'integer'],
+            [['model_class', 'content'], 'safe'],
         ];
     }
 
@@ -47,6 +46,12 @@ class CommentSearch extends Comment
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'sort' => [
+                'defaultOrder' => [
+                    'created_at' => SORT_DESC,
+                    'id' => SORT_ASC,
+                ]
+            ],
         ]);
 
         $this->load($params);
@@ -61,13 +66,17 @@ class CommentSearch extends Comment
         $query->andFilterWhere([
             'id' => $this->id,
             'user_id' => $this->user_id,
-            'source_id' => $this->source_id,
+            'model_id' => $this->model_id,
             'parent' => $this->parent,
             'status' => $this->status,
-            'created_at' => $this->created_at,
         ]);
 
-        $query->andFilterWhere(['like', 'source_type', $this->source_type])
+        if ($this->created_at !== null) {
+            $date = strtotime($this->created_at);
+            $query->andWhere(['between', 'created_at', $date, $date + 3600 * 24]);
+        }
+
+        $query->andFilterWhere(['model_class' => $this->model_class])
             ->andFilterWhere(['like', 'content', $this->content]);
 
         return $dataProvider;

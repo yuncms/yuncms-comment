@@ -59,15 +59,15 @@ $this->registerJs("jQuery(\"#batch_deletion\").on(\"click\", function () {
                     ],
                     //['class' => 'yii\grid\SerialColumn'],
                     'id',
-                    'user.name',
+                    'user.nickname',
                     'content:ntext',
-                    'source_id',
-                    'source_type',
+                    'model_id',
+                    'model_class',
                     'parent.content:ntext',
                     [
                         'header' => Yii::t('comment', 'Status'),
                         'value' => function ($model) {
-                            if ($model->isPending()) {
+                            if ($model->isDraft) {
                                 return Html::a(Yii::t('comment', 'Pending'), ['audit', 'id' => $model->id], [
                                     'class' => 'btn btn-xs btn-success btn-block',
                                     'data-method' => 'post',
@@ -79,11 +79,23 @@ $this->registerJs("jQuery(\"#batch_deletion\").on(\"click\", function () {
                         },
                         'format' => 'raw',
                     ],
-                    'created_at:datetime',
+                    [
+                        'attribute' => 'created_at',
+                        'format' => 'datetime',
+                        'filter' => \yii\jui\DatePicker::widget([
+                            'model' => $searchModel,
+                            'options'=>[
+                                'class'=>'form-control'
+                            ],
+                            'attribute' => 'created_at',
+                            'name' => 'created_at',
+                            'dateFormat' => 'yyyy-MM-dd'
+                        ]),
+                    ],
                     // 'updated_at',
                     [
                         'class' => 'yii\grid\ActionColumn',
-                        'header' => Yii::t('app', 'Operation'),
+                        'header' => Yii::t('comment', 'Operation'),
                         'template' => '{delete}',
                         //'buttons' => [
                         //    'update' => function ($url, $model, $key) {

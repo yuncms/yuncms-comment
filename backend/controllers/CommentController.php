@@ -8,7 +8,7 @@ use yii\web\Controller;
 use yii\filters\VerbFilter;
 use yii\web\NotFoundHttpException;
 use yuncms\comment\models\Comment;
-use yuncms\comment\models\CommentSearch;
+use yuncms\comment\backend\models\CommentSearch;
 
 /**
  * CommentController implements the CRUD actions for Comment model.
@@ -57,7 +57,7 @@ class CommentController extends Controller
     public function actionDelete($id)
     {
         $this->findModel($id)->delete();
-        Yii::$app->getSession()->setFlash('success', Yii::t('app', 'Delete success.'));
+        Yii::$app->getSession()->setFlash('success', Yii::t('comment', 'Delete success.'));
         return $this->redirect(['index']);
     }
 
@@ -70,7 +70,7 @@ class CommentController extends Controller
     public function actionAudit($id)
     {
         $model = $this->findModel($id);
-        $model->confirm();
+        $model->setPublished();
         Yii::$app->getSession()->setFlash('success', Yii::t('comment', 'Comment has been confirmed'));
         return $this->redirect(Url::previous('actions-redirect'));
     }
@@ -87,9 +87,9 @@ class CommentController extends Controller
                 $model = $this->findModel($id);
                 $model->delete();
             }
-            Yii::$app->getSession()->setFlash('success', Yii::t('app', 'Delete success.'));
+            Yii::$app->getSession()->setFlash('success', Yii::t('comment', 'Delete success.'));
         } else {
-            Yii::$app->getSession()->setFlash('success', Yii::t('app', 'Delete failed.'));
+            Yii::$app->getSession()->setFlash('success', Yii::t('comment', 'Delete failed.'));
         }
         return $this->redirect(['index']);
     }
@@ -106,7 +106,7 @@ class CommentController extends Controller
         if (($model = Comment::findOne($id)) !== null) {
             return $model;
         } else {
-            throw new NotFoundHttpException (Yii::t('app', 'The requested page does not exist.'));
+            throw new NotFoundHttpException (Yii::t('comment', 'The requested page does not exist.'));
         }
     }
 }

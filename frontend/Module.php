@@ -6,8 +6,6 @@
  */
 namespace yuncms\comment\frontend;
 
-use Yii;
-
 /**
  * Class Module
  * @package yuncms\comment\frontend

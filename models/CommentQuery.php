@@ -15,44 +15,31 @@ use yii\db\ActiveQuery;
  */
 class CommentQuery extends ActiveQuery
 {
-    /**
-     * @var string 模型类型
-     */
-    public $source_type;
-
-    /**
-     * @var string 数据表名称
-     */
-    public $tableName;
-
-    /**
-     * @param \yii\db\QueryBuilder $builder
-     * @return $this|\yii\db\Query
-     */
-    public function prepare($builder)
+    /*public function active()
     {
-        $this->andWhere([$this->tableName . '.source_type' => $this->source_type]);
-        return parent::prepare($builder);
-    }
+        return $this->andWhere('[[status]]=1');
+    }*/
 
-    /**
-     * 设置查询条件
-     * @return $this
-     */
     public function active()
     {
         return $this->andWhere(['status' => Comment::STATUS_PUBLISHED]);
     }
 
     /**
-     * 获取指定Model的评论
-     * @param string $sourceType
-     * @param int $sourceId
-     * @return $this
-     * @deprecated 过期了
+     * @inheritdoc
+     * @return Comment[]|array
      */
-    public function source($sourceType, $sourceId)
+    public function all($db = null)
     {
-        return $this->andWhere(['source_type' => $sourceType, 'source_id' => $sourceId])->active();
+        return parent::all($db);
+    }
+
+    /**
+     * @inheritdoc
+     * @return Comment|array|null
+     */
+    public function one($db = null)
+    {
+        return parent::one($db);
     }
 }
