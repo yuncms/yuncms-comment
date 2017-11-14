@@ -102,8 +102,7 @@ class Comment extends ActiveRecord implements ScanInterface
     {
         return [
 
-            [['model_class', 'model_id', 'content'], 'required'],
-            [['model_class'], 'string', 'max' => 100],
+            [['model_id', 'content'], 'required'],
             [['content'], 'filter', 'filter' => 'trim'],
             ['content', 'validateContent'],
 

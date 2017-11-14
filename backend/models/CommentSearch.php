@@ -17,8 +17,8 @@ class CommentSearch extends Comment
     public function rules()
     {
         return [
-            [['id', 'user_id', 'model_id', 'parent', 'status', 'created_at'], 'integer'],
-            [['model_class', 'content'], 'safe'],
+            [['id', 'user_id', 'model_id', 'parent', 'status'], 'integer'],
+            [['model_class', 'content', 'created_at'], 'safe'],
         ];
     }
 
@@ -67,6 +67,7 @@ class CommentSearch extends Comment
             'id' => $this->id,
             'user_id' => $this->user_id,
             'model_id' => $this->model_id,
+            //'model_class' => $this->model_class,
             'parent' => $this->parent,
             'status' => $this->status,
         ]);
@@ -76,8 +77,7 @@ class CommentSearch extends Comment
             $query->andWhere(['between', 'created_at', $date, $date + 3600 * 24]);
         }
 
-        $query->andFilterWhere(['model_class' => $this->model_class])
-            ->andFilterWhere(['like', 'content', $this->content]);
+        $query->andFilterWhere(['like', 'content', $this->content]);
 
         return $dataProvider;
     }
