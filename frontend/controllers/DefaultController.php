@@ -61,7 +61,7 @@ class DefaultController extends Controller
         if ($sourceType == 'question' && Yii::$app->hasModule('question')) {
             $source = \yuncms\question\models\Question::findOne($sourceId);
         } else if ($sourceType === 'answer' && Yii::$app->hasModule('question')) {
-            $source = \yuncms\question\models\Answer::findOne($sourceId);
+            $source = \yuncms\question\models\QuestionAnswer::findOne($sourceId);
         } else if ($sourceType == 'article' && Yii::$app->hasModule('article')) {
             $source = \yuncms\article\models\Article::findOne($sourceId);
         } else if ($sourceType == 'live' && Yii::$app->hasModule('live')) {
@@ -104,7 +104,7 @@ class DefaultController extends Controller
             $notify_refer_type = 'question';
             $notify_refer_id = 0;
         } else if ($model_class === 'answer' && Yii::$app->hasModule('question')) {
-            $source = \yuncms\question\models\Answer::findOne($modelId);
+            $source = \yuncms\question\models\QuestionAnswer::findOne($modelId);
             $notifySubject = $source->question->title;
             $notifyType = 'comment_answer';
             $notify_refer_type = 'answer';
