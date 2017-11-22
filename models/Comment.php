@@ -34,6 +34,8 @@ use yuncms\user\models\User;
  *
  * @property-read boolean $isDraft 是否草稿
  * @property-read boolean $isPublished 是否发布
+ * @property-read User $toUser 用户实例
+ * @property-read User $user 用户实例
  */
 class Comment extends ActiveRecord implements ScanInterface
 {
