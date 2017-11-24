@@ -34,6 +34,8 @@ use yuncms\user\models\User;
  *
  * @property-read boolean $isDraft 是否草稿
  * @property-read boolean $isPublished 是否发布
+ * @property-read User $toUser 用户实例
+ * @property-read User $user 用户实例
  */
 class Comment extends ActiveRecord implements ScanInterface
 {
@@ -90,8 +92,8 @@ class Comment extends ActiveRecord implements ScanInterface
     {
         $scenarios = parent::scenarios();
         return ArrayHelper::merge($scenarios, [
-            static::SCENARIO_CREATE => ['model_class', 'model_id', 'content'],
-            static::SCENARIO_UPDATE => ['model_class', 'model_id', 'content'],
+            static::SCENARIO_CREATE => ['model_class', 'model_id', 'content','to_user_id'],
+            static::SCENARIO_UPDATE => ['model_class', 'model_id', 'content','to_user_id'],
         ]);
     }
 
@@ -105,7 +107,7 @@ class Comment extends ActiveRecord implements ScanInterface
             [['model_id', 'content'], 'required'],
             [['content'], 'filter', 'filter' => 'trim'],
             ['content', 'validateContent'],
-
+            [['to_user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['to_user_id' => 'id']],
             ['status', 'default', 'value' => self::STATUS_DRAFT],
             ['status', 'in', 'range' => [
                 self::STATUS_DRAFT, self::STATUS_REVIEW, self::STATUS_REJECTED, self::STATUS_PUBLISHED,
