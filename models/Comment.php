@@ -8,6 +8,7 @@
 namespace yuncms\comment\models;
 
 use Yii;
+use yii\base\InvalidConfigException;
 use yii\db\ActiveQuery;
 use yii\db\BaseActiveRecord;
 use yii\helpers\ArrayHelper;
@@ -17,6 +18,8 @@ use yii\behaviors\BlameableBehavior;
 use yuncms\db\ActiveRecord;
 use yuncms\core\ScanInterface;
 use yuncms\core\jobs\ScanTextJob;
+use yuncms\notifications\contracts\NotificationInterface;
+use yuncms\notifications\NotificationTrait;
 use yuncms\user\models\User;
 
 /**
@@ -38,8 +41,10 @@ use yuncms\user\models\User;
  * @property-read User $toUser 用户实例
  * @property-read User $user 用户实例
  */
-class Comment extends ActiveRecord implements ScanInterface
+class Comment extends ActiveRecord implements ScanInterface, NotificationInterface
 {
+    use NotificationTrait;
+
     //场景定义
     const SCENARIO_CREATE = 'create';//创建
     const SCENARIO_UPDATE = 'update';//更新
@@ -93,8 +98,8 @@ class Comment extends ActiveRecord implements ScanInterface
     {
         $scenarios = parent::scenarios();
         return ArrayHelper::merge($scenarios, [
-            static::SCENARIO_CREATE => ['model_class', 'model_id', 'content','to_user_id'],
-            static::SCENARIO_UPDATE => ['model_class', 'model_id', 'content','to_user_id'],
+            static::SCENARIO_CREATE => ['model_class', 'model_id', 'content', 'to_user_id'],
+            static::SCENARIO_UPDATE => ['model_class', 'model_id', 'content', 'to_user_id'],
         ]);
     }
 
@@ -295,7 +300,11 @@ class Comment extends ActiveRecord implements ScanInterface
                 'modelClass' => get_class($this), 'modelId' => $this->id, 'scenario' => 'new', 'category' => 'comment'
             ]));
             $this->source->updateCountersAsync(['comments' => 1]);
+            try {
+                Yii::$app->notification->send($this->source->user, $this);
+            } catch (InvalidConfigException $e) {
+            }
         }
-        return parent::afterSave($insert, $changedAttributes);
+        parent::afterSave($insert, $changedAttributes);
     }
 }
