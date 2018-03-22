@@ -9,12 +9,12 @@ namespace yuncms\comment\models;
 
 use Yii;
 use yii\db\ActiveQuery;
-use yii\db\ActiveRecord;
 use yii\db\BaseActiveRecord;
 use yii\helpers\ArrayHelper;
 use yii\helpers\HtmlPurifier;
 use yii\behaviors\AttributeBehavior;
 use yii\behaviors\BlameableBehavior;
+use yuncms\db\ActiveRecord;
 use yuncms\core\ScanInterface;
 use yuncms\core\jobs\ScanTextJob;
 use yuncms\user\models\User;
@@ -32,6 +32,7 @@ use yuncms\user\models\User;
  * @property integer $status 评论状态
  * @property integer $created_at 发表时间
  *
+ * @property ActiveRecord $source
  * @property-read boolean $isDraft 是否草稿
  * @property-read boolean $isPublished 是否发布
  * @property-read User $toUser 用户实例
@@ -107,7 +108,7 @@ class Comment extends ActiveRecord implements ScanInterface
             [['model_id', 'content'], 'required'],
             [['content'], 'filter', 'filter' => 'trim'],
             ['content', 'validateContent'],
-            [['to_user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['to_user_id' => 'id']],
+            [['to_user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['to_user_id' => 'id']],
             ['status', 'default', 'value' => self::STATUS_DRAFT],
             ['status', 'in', 'range' => [
                 self::STATUS_DRAFT, self::STATUS_REVIEW, self::STATUS_REJECTED, self::STATUS_PUBLISHED,
@@ -160,7 +161,7 @@ class Comment extends ActiveRecord implements ScanInterface
      */
     public function getUser()
     {
-        return $this->hasOne(User::className(), ['id' => 'user_id']);
+        return $this->hasOne(User::class, ['id' => 'user_id']);
     }
 
     /**
@@ -169,7 +170,7 @@ class Comment extends ActiveRecord implements ScanInterface
      */
     public function getToUser()
     {
-        return $this->hasOne(User::className(), ['id' => 'to_user_id']);
+        return $this->hasOne(User::class, ['id' => 'to_user_id']);
     }
 
     /**
@@ -265,6 +266,23 @@ class Comment extends ActiveRecord implements ScanInterface
     }
 
     /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getSource()
+    {
+        return $this->hasOne($this->model_class, ['id' => 'model_id']);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function afterDelete()
+    {
+        $this->source->updateCountersAsync(['comments' => -1]);
+        parent::afterDelete();
+    }
+
+    /**
      * 保存后机器审核
      * @param bool $insert
      * @param array $changedAttributes
@@ -276,6 +294,7 @@ class Comment extends ActiveRecord implements ScanInterface
             Yii::$app->queue->push(new ScanTextJob([
                 'modelClass' => get_class($this), 'modelId' => $this->id, 'scenario' => 'new', 'category' => 'comment'
             ]));
+            $this->source->updateCountersAsync(['comments' => 1]);
         }
         return parent::afterSave($insert, $changedAttributes);
     }
